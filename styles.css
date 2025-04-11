@@ -1,0 +1,778 @@
+/* 
+ * HandSynth - Improved Responsive Styles
+ * Supports all devices including iPhone and small screens
+ */
+
+/* Base Reset & Typography */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Montserrat', 'Arial', sans-serif;
+}
+
+:root {
+  --primary-dark: #05071a;
+  --primary-blue: #112240;
+  --primary-light-blue: #0c2d63;
+  --accent-blue: rgba(100, 140, 255, 0.25);
+  --text-light: #ffffff;
+  --text-faded: rgba(255, 255, 255, 0.7);
+  --ui-background: rgba(14, 24, 45, 0.8);
+  --ui-border: rgba(255, 255, 255, 0.1);
+  --ui-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  --ui-button-bg: rgba(80, 120, 220, 0.15);
+  --ui-button-border: rgba(120, 160, 255, 0.3);
+  --ui-button-hover: rgba(100, 140, 255, 0.25);
+  --ui-button-border-hover: rgba(140, 180, 255, 0.4);
+  --ui-button-shadow: 0 0 15px rgba(100, 140, 255, 0.2);
+  --ui-radius: 15px;
+  --chord-gradient: radial-gradient(circle at 30% 30%, 
+    rgba(100, 255, 160, 0.15),
+    rgba(80, 230, 140, 0.05),
+    transparent 70%);
+  --note-gradient: radial-gradient(circle at 30% 30%,
+    rgba(100, 160, 255, 0.15),
+    rgba(80, 120, 230, 0.05),
+    transparent 70%);
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--primary-dark);
+  color: var(--text-light);
+}
+
+/* Main container and background effects */
+#container {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg,
+    var(--primary-dark) 0%,
+    var(--primary-blue) 50%,
+    var(--primary-light-blue) 100%
+  );
+  overflow: hidden;
+}
+
+.glow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 50%,
+    rgba(45, 132, 255, 0.08) 0%,
+    rgba(77, 68, 255, 0.05) 50%,
+    transparent 75%
+  );
+  mix-blend-mode: screen;
+  opacity: 0.8;
+  z-index: 1;
+}
+
+.orb {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%,
+    rgba(114, 146, 255, 0.15),
+    rgba(60, 89, 255, 0.08),
+    transparent 70%
+  );
+  filter: blur(20px);
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.orb:nth-child(1) {
+  top: -150px;
+  left: -150px;
+}
+
+.orb:nth-child(2) {
+  bottom: -150px;
+  right: -150px;
+  background: radial-gradient(circle at 30% 30%,
+    rgba(145, 90, 255, 0.15),
+    rgba(100, 76, 255, 0.08),
+    transparent 70%
+  );
+}
+
+/* Main title styling */
+#patternName {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--text-light);
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  pointer-events: none;
+  z-index: 103;
+  text-align: center;
+  background-color: var(--ui-background);
+  padding: 12px 30px;
+  border-radius: var(--ui-radius);
+  text-shadow: 0 0 15px rgba(100, 160, 255, 0.5);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--ui-border);
+  box-shadow: var(--ui-shadow),
+              0 0 20px rgba(90, 140, 255, 0.15);
+}
+
+/* Instructions panel */
+#instructions {
+  position: fixed;
+  bottom: 30px;
+  left: 30px;
+  color: var(--text-light);
+  font-size: 16px;
+  background-color: var(--ui-background);
+  padding: 18px 24px;
+  border-radius: var(--ui-radius);
+  z-index: 1000;
+  pointer-events: none;
+  line-height: 1.8;
+  max-width: 360px;
+  box-shadow: var(--ui-shadow);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--ui-border);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* Video and canvas elements - with responsive positioning */
+.input_video {
+  /* change display to "display: block;" for video input */
+  display: block;
+  position: absolute;
+  top: 10%;
+  left: 86%;
+  transform: translate(-50%, -50%) scaleX(-1);
+  width: 90%;
+  max-width: 140px;
+  max-height: 10vh;
+  aspect-ratio: 16/9;
+  border: 2px solid rgba(114, 146, 255, 0.3);
+  border-radius: 12px;
+  z-index: 4;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3),
+              0 0 20px rgba(100, 140, 255, 0.1);
+  overflow: hidden;
+}
+
+.output_canvas {
+  display: block;
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  transform: translate(-50%, -50%) scaleX(-1);
+  width: 90%;
+  max-width: 1420px;
+  max-height: 80vh;
+  aspect-ratio: 16/9;
+  z-index: 5;
+  pointer-events: none;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Note indicator */
+.note-indicator {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  color: var(--text-light);
+  font-size: 24px;
+  font-weight: 500;
+  background-color: var(--ui-background);
+  padding: 20px 25px;
+  border-radius: var(--ui-radius);
+  z-index: 100;
+  min-width: 220px;
+  text-align: center;
+  box-shadow: var(--ui-shadow);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--ui-border);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.playing {
+  animation: pulse 1.2s infinite alternate;
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3),
+              0 0 30px rgba(100, 180, 255, 0.2);
+}
+
+@keyframes pulse {
+  from { background-color: var(--ui-background); }
+  to { background-color: rgba(50, 90, 200, 0.7); }
+}
+
+/* UI Controls - Improved organization and responsiveness */
+.ui-container {
+  position: absolute;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(96%, 1200px);
+  z-index: 103;
+  background-color: var(--ui-background);
+  padding: 18px 25px;
+  border-radius: var(--ui-radius);
+  box-shadow: var(--ui-shadow);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--ui-border);
+}
+
+.ui-control {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 160px;
+  margin: 0 5px;
+}
+
+.ui-control label {
+  color: var(--text-faded);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 500;
+}
+
+.ui-select {
+  background-color: var(--ui-button-bg);
+  color: var(--text-light);
+  border: 1px solid var(--ui-button-border);
+  border-radius: 8px;
+  padding: 10px 15px;
+  font-size: 15px;
+  cursor: pointer;
+  width: 100%;
+  outline: none;
+  transition: all 0.3s ease;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2214%22%20height%3D%2214%22%20viewBox%3D%220%200%2014%2014%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M3.5%205.5L7%209L10.5%205.5%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+}
+
+.ui-select:focus {
+  border-color: var(--ui-button-border-hover);
+  box-shadow: var(--ui-button-shadow);
+}
+
+.ui-select option {
+  background-color: var(--primary-blue);
+  color: var(--text-light);
+}
+
+.ui-select:hover,
+.ui-select:focus {
+  background-color: var(--ui-button-hover);
+  border-color: var(--ui-button-border-hover);
+  box-shadow: var(--ui-button-shadow);
+}
+
+/* Start Audio button */
+button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 20px;
+  font-size: 24px;
+  cursor: pointer;
+  font-family: 'Arial', sans-serif;
+  box-shadow: 0 5px 8px rgba(0, 0, 0, 0.6);
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background-color: #3e8e41;
+  transform: translateY(-2px);
+  box-shadow: 0 7px 10px rgba(0, 0, 0, 0.7);
+}
+
+button:active {
+  transform: translateY(1px);
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Visualizer styles for different states */
+.chord-viz,
+.note-viz {
+  position: absolute;
+  top: 50%;
+  border-radius: 50%;
+  transition: all 0.5s ease;
+  filter: blur(20px);
+  z-index: 3;
+}
+
+.chord-viz {
+  left: 10%;
+  transform: translateY(-50%);
+  width: 300px;
+  height: 300px;
+  background: var(--chord-gradient);
+  opacity: 0;
+}
+
+.note-viz {
+  right: 10%;
+  transform: translateY(-50%);
+  width: 300px;
+  height: 300px;
+  background: var(--note-gradient);
+  opacity: 0;
+}
+
+.chord-active {
+  opacity: 1;
+  width: 400px;
+  height: 400px;
+}
+
+.note-active {
+  opacity: 1;
+  width: 400px;
+  height: 400px;
+}
+
+/* Note position markers */
+.note-markers {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 100%;
+  width: 2px;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.marker {
+  position: absolute;
+  width: 120px;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.15);
+  left: -60px;
+}
+
+.marker.octave-divider {
+  height: 2px;
+  background-color: rgba(255, 255, 255, 0.3);
+  width: 200px;
+  left: -100px;
+}
+
+.marker-label {
+  position: absolute;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  left: -100px;
+  transform: translateY(-50%);
+}
+
+/* Visual keyboard representation */
+.keyboard-visual {
+  position: fixed;
+  left: 20px;
+  top: 55%;
+  transform: translateY(-50%);
+  width: 60px;
+  height: 80%;
+  z-index: 7;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.key {
+  flex: 1;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px 0 0 4px;
+  border-left: 2px solid rgba(100, 140, 255, 0.3);
+  transition: all 0.2s ease;
+}
+
+.key.active {
+  background-color: rgba(100, 140, 255, 0.3);
+  box-shadow: 0 0 15px rgba(100, 140, 255, 0.3);
+}
+
+/* Message overlay */
+[class^="message-"] {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  z-index: 1000;
+  font-size: 24px;
+  font-family: 'Arial', 'sans-serif';
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .chord-viz, .note-viz {
+    width: 200px;
+    height: 200px;
+  }
+  
+  .chord-active, .note-active {
+    width: 250px;
+    height: 250px;
+  }
+  
+  #patternName {
+    font-size: 24px;
+    padding: 10px 20px;
+  }
+  
+  .note-indicator {
+    font-size: 20px;
+    padding: 15px 20px;
+    min-width: 180px;
+  }
+}
+
+@media (max-width: 768px) {
+  .ui-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    top: auto;
+    bottom: 20px;
+    width: 90%;
+    padding: 15px;
+  }
+  
+  .ui-control {
+    min-width: 120px;
+    width: calc(50% - 10px);
+  }
+  
+  .ui-select {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+  
+  #instructions {
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 100px;
+    font-size: 14px;
+    max-width: 90%;
+    padding: 15px;
+  }
+  
+  .note-indicator {
+    right: 50%;
+    transform: translateX(50%);
+    font-size: 18px;
+    min-width: 160px;
+    padding: 12px 15px;
+    top: 80px;
+    bottom: auto;
+  }
+  
+  .chord-viz, .note-viz {
+    display: none;
+  }
+  
+  .keyboard-visual {
+    width: 30px;
+    left: 10px;
+  }
+  
+  .marker-label {
+    font-size: 10px;
+    left: -60px;
+  }
+  
+  .marker {
+    width: 60px;
+    left: -30px;
+  }
+  
+  .marker.octave-divider {
+    width: 100px;
+    left: -50px;
+  }
+  
+  #patternName {
+    width: 90%;
+    font-size: 20px;
+    padding: 8px 15px;
+    top: 15px;
+  }
+}
+
+/* iPhone and small devices */
+@media (max-width: 480px) {
+  .ui-container {
+    padding: 10px;
+    gap: 8px;
+    bottom: 15px;
+  }
+  
+  .ui-control {
+    width: calc(50% - 8px);
+    min-width: 0;
+    margin: 0;
+    gap: 5px;
+  }
+  
+  .ui-control label {
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+  
+  .ui-select {
+    font-size: 12px;
+    padding: 6px 10px;
+    padding-right: 25px;
+    background-size: 10px;
+  }
+  
+  #patternName {
+    font-size: 16px;
+    padding: 8px 12px;
+    top: 10px;
+  }
+  
+  .note-indicator {
+    font-size: 14px;
+    padding: 10px;
+    min-width: 0;
+    width: 90%;
+    top: 70px;
+  }
+  
+  #instructions {
+    bottom: 80px;
+    font-size: 12px;
+    line-height: 1.5;
+    padding: 10px;
+  }
+  
+  button {
+    padding: 15px;
+    font-size: 18px;
+  }
+  
+  .keyboard-visual {
+    width: 20px;
+    left: 5px;
+  }
+  
+  .input_video, .output_canvas {
+    width: 95%;
+    max-height: 70vh;
+  }
+  
+  /* Simplified note markers for very small screens */
+  .marker-label {
+    display: none;
+  }
+  
+  .marker {
+    width: 40px;
+    left: -20px;
+  }
+  
+  .marker.octave-divider {
+    width: 60px;
+    left: -30px;
+  }
+}
+
+/* Landscape orientation for mobile devices */
+@media (max-height: 600px) and (orientation: landscape) {
+  .ui-container {
+    top: 70px;
+    bottom: auto;
+    flex-wrap: wrap;
+    padding: 10px;
+    max-width: 560px;
+  }
+  
+  .ui-control {
+    width: calc(25% - 10px);
+    min-width: 0;
+  }
+  
+  #patternName {
+    top: 10px;
+    font-size: 16px;
+    padding: 6px 15px;
+  }
+  
+  .note-indicator {
+    bottom: 10px;
+    top: auto;
+    right: 10px;
+    left: auto;
+    transform: none;
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+  
+  #instructions {
+    display: none;
+  }
+  
+  .keyboard-visual {
+    height: 60%;
+  }
+  
+  .input_video, .output_canvas {
+    max-height: 75vh;
+  }
+}
+
+/* Animation for loading and transitions */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateY(50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.fadeIn {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.slideIn {
+  animation: slideIn 0.5s ease-in-out;
+}
+
+/* Utility classes for hover and interaction states */
+.hover-glow:hover {
+  box-shadow: 0 0 20px rgba(100, 140, 255, 0.4);
+}
+
+.sound-active {
+  border-color: rgba(100, 255, 150, 0.6);
+  box-shadow: 0 0 15px rgba(100, 255, 150, 0.3);
+}
+
+/* Preloader for app initialization */
+.preloader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--primary-dark);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.preloader__spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(255, 255, 255, 0.1);
+  border-top-color: rgba(100, 140, 255, 0.7);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Accessibility improvements */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Dark mode compatibility */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ui-background: rgba(10, 18, 35, 0.9);
+  }
+}
+
+/* Print styles */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  
+  #patternName, #patternName * {
+    visibility: visible;
+  }
+  
+  #patternName {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: none;
+    box-shadow: none;
+    border: none;
+    color: black;
+  }
+}
+
+/* RTL support for international users */
+[dir="rtl"] .ui-select {
+  background-position: left 10px center;
+  padding-right: 15px;
+  padding-left: 30px;
+}
+
+[dir="rtl"] .marker-label {
+  left: auto;
+  right: -100px;
+}
+
+[dir="rtl"] .keyboard-visual {
+  left: auto;
+  right: 20px;
+}
+
+[dir="rtl"] .note-indicator {
+  right: auto;
+  left: 30px;
+}
