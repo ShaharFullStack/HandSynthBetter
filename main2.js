@@ -218,13 +218,14 @@ function setupAudio() {
   
   // Improve overall sound with slightly deeper reverb and a gentle compressor
   const compressor = new Tone.Compressor(-12, 3).toDestination();
+  
   reverb = new Tone.Reverb({
     decay: 2.0,
     wet: 0.3,
     preDelay: 0.07,
   });
   limiter.connect(reverb);  
-  // Ensure filter is created before connecting it:
+
   filter = new Tone.Filter({
     type: "lowpass",
     frequency: 8000,   // Increased from 2000 for more clarity
@@ -689,7 +690,7 @@ function mapRange(value, inMin, inMax, outMin, outMax) {
 // Improved note mapping function with inverted direction (hand up = high pitch, hand down = low pitch)
 function getNoteFromPosition(y, scale) {
   // Track position change
-  const positionChanged = Math.abs(y - lastRightHandY) > 0.03;
+  const positionChanged = Math.abs(y - lastRightHandY) > 0.0001;
   lastRightHandY = y;
   
   // FIXED: Inverted mapping - higher hand position (lower y value) = higher note
@@ -722,12 +723,12 @@ function getNoteFromPosition(y, scale) {
 // Improved chord position mapping with inverted direction (hand up = high pitch, hand down = low pitch)
 function getChordFromPosition(y) {
   // Track position change
-  const positionChanged = Math.abs(y - lastLeftHandY) > 0.03;
+  const positionChanged = Math.abs(y - lastLeftHandY) > 0.0001;
   lastLeftHandY = y;
   
   // FIXED: Inverted mapping - higher hand position (lower y value) = higher chord position
   // Map from full range (0.0-1.0) to chord positions (0-7), but inverted
-  const position = Math.floor(mapRange(y, 0.0, 1.0, 7, 0));
+  const position = Math.floor(mapRange(y, 0.5, 1.0, 7, 0));
   
   // Debug output
   // console.log(`Left Hand Y: ${y.toFixed(3)} → Chord Position: ${position}`);
@@ -859,64 +860,38 @@ function playChord(chord) {
     } else if (chordChanged) {
       // CRITICAL FIX: Using proper sequence to eliminate distortion
       
-      // 1. Release all current notes with a slight future timestamp to ensure clean release
+      // 1. Release all current notes in the past to ensure clean release
       harmonySynth.releaseAll(Tone.now() - 0.005);
       
-      // 2. Wait a moment for the release to complete
-      setTimeout(() => {
-        // 3. Completely dispose of the old synth to clear any lingering audio problems
-        harmonySynth.dispose();
-        
-        // 4. Create a fresh instance with the same settings
-        harmonySynth = new Tone.PolySynth({
-          maxPolyphony: 8,
-          voice: Tone.Synth,
-          options: {
-            oscillator: {
-              type: soundPresets[selectedSound].oscillator.type,
-              modulationType: "sine"
-            },
-            envelope: {
-              attack: soundPresets[selectedSound].envelope.attack * 1.2,
-              decay: soundPresets[selectedSound].envelope.decay,
-              sustain: soundPresets[selectedSound].envelope.sustain,
-              release: soundPresets[selectedSound].envelope.release * 1.5
-            },
-            portamento: 0.02
-          }
-        });
-        
-        // 5. Reconnect to audio chain
-        harmonySynth.connect(filter);
-        
-        // 6. Set volume
-        harmonySynth.volume.value = leftHandVolume;
-        
-        // 7. Play the new chord with a short delay to ensure clean start
-        setTimeout(() => {
-          // Using a precise scheduled time with Tone.js for better timing
-          const startTime = Tone.now() + 0.05;
-          harmonySynth.triggerAttack(chord.notes, startTime, 0.6);  // Reduced velocity
-          currentChord = chord;
-          lastChord = {...chord}; // Make a copy
-          leftHandIsPlaying = true;
-          
-          // Trigger animation effects for chord change
-          chordChangeTime = Date.now() * 0.001;
-          pulseFactor = 0.8;
-          
-          // Different animation effects based on chord type
-          if (chord.type.includes('7')) {
-            // More dramatic effect for dominant and 7th chords
-            pulseFactor = 1.0;
-          } else if (chord.type === 'diminished') {
-            // Special effect for diminished chords
-            pulseFactor = 1.2;  
-          }
-          
-          console.log("Changed chord to:", chord.name, chord.notes);
-        }, 50);
-      }, 150);
+      // 2. Dispose of the synth and recreate it only if necessary
+      if (harmonySynth && harmonySynth.dispose) {
+          harmonySynth.dispose();
+      }
+      harmonySynth = new Tone.PolySynth({
+        maxPolyphony: 8,
+        voice: Tone.Synth,
+        options: {
+          oscillator: {
+            type: soundPresets[selectedSound].oscillator.type,
+            modulationType: "sine"
+          },
+          envelope: {
+            attack: soundPresets[selectedSound].envelope.attack * 1.2,
+            decay: soundPresets[selectedSound].envelope.decay,
+            sustain: soundPresets[selectedSound].envelope.sustain,
+            release: soundPresets[selectedSound].envelope.release * 1.5
+          },
+          portamento: 0.02
+        }
+      });
+      harmonySynth.connect(filter);
+      harmonySynth.volume.value = leftHandVolume;
+      // 3. Play the new chord with minimal delay using Tone.now()
+      harmonySynth.triggerAttack(chord.notes, Tone.now(), 0.6);
+      currentChord = chord;
+      lastChord = {...chord};
+      chordChangeTime = Date.now() * 0.0001;
+      console.log("Changed chord to:", chord.name, chord.notes);
     }
     
     updateNoteDisplay();
